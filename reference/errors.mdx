@@ -1,0 +1,50 @@
+---
+title: Errors
+description: Error codes and how to handle them
+---
+
+## HTTP status codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad request — check your request body |
+| `401` | Unauthorized — invalid or missing credentials |
+| `403` | Forbidden — account not permitted |
+| `404` | Not found |
+| `500` | Server error — contact support |
+
+## Error response shape
+
+```json
+{
+  "statusCode": 400,
+  "message": "MoMo initiate failed"
+}
+```
+
+## Common errors
+
+| Message | Cause | Fix |
+|---------|-------|-----|
+| `Invalid credentials` | Wrong Merchant ID or API Key | Check credentials in your dashboard |
+| `customerReference must be UUID` | Reference is not UUID format | Use a UUID v4 value or omit the field |
+| `Unable to process Momo payment` | Provider rejected the request | Check phone number format and provider code |
+| `CRAY_FINANCE_API_KEY is not configured` | Missing environment variable | Contact support |
+| `No transaction_id returned` | Card initiation failed | Verify card details and try again |
+| `Unauthorized` | Missing or expired JWT token | Re-authenticate to get a new token |
+
+## Phone number errors
+
+The most common cause of `Unable to process Momo payment` is an incorrect phone number format. Always use:
+
+- International format without `+`
+- No spaces or dashes
+- Country code included
+
+```
+✅ 2348100000000
+❌ 08100000000
+❌ +234 810 000 0000
+```

@@ -1,0 +1,58 @@
+---
+title: Status Polling
+description: How to reliably confirm payment status
+---
+
+## Why polling?
+
+Mobile money payments are asynchronous — the customer receives a prompt on their phone and approves or declines it in their own time. SabiPay does not use callbacks for MoMo; you poll the status endpoint until a final state is reached.
+
+## Recommended polling logic
+
+```javascript
+async function waitForPayment(customerReference, headers) {
+  const MAX_ATTEMPTS = 60;
+  const INTERVAL_MS = 3000; // 3 seconds
+
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    await new Promise(r => setTimeout(r, INTERVAL_MS));
+
+    const res = await fetch(
+      `/pay/merchant-api/momo/status/${customerReference}`,
+      { headers }
+    );
+    const { data } = await res.json();
+
+    if (data.status === 'success') return 'success';
+    if (data.status === 'failed') return 'failed';
+    // 'pending' — keep polling
+  }
+
+  return 'timeout';
+}
+```
+
+## Status values
+
+| Value | Meaning | Action |
+|-------|---------|--------|
+| `pending` | Awaiting customer approval | Keep polling |
+| `success` | Payment confirmed | Credit customer, fulfill order |
+| `failed` | Declined or expired | Show error, let customer retry |
+
+## Timeouts
+
+- Poll for a maximum of **3 minutes** (60 × 3s)
+- If still `pending` after that, stop polling and show a "pending" message to the customer
+- The payment may still complete — SabiPay will recover it on the next server restart and credit your wallet
+
+## Recovery
+
+If your server restarts or polling stops unexpectedly, you can manually trigger recovery via:
+
+```bash
+GET /pay/recover
+Authorization: Bearer YOUR_TOKEN
+```
+
+This re-checks all your pending transactions against the payment processor and credits any that have since completed.

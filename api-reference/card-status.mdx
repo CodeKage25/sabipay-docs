@@ -1,0 +1,31 @@
+---
+title: Card Status
+description: Check the status of a card payment
+---
+
+## GET /pay/merchant-api/card/status/:reference
+
+### Headers
+
+```
+x-auth-merchantid: YOUR_MERCHANT_ID
+x-auth-apikey: YOUR_API_KEY
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Card status",
+  "data": {
+    "status": "success"
+  }
+}
+```
+
+| `status` | Meaning |
+|----------|---------|
+| `pending` | Still processing |
+| `success` | Payment confirmed |
+| `failed` | Payment declined |

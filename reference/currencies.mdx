@@ -1,0 +1,52 @@
+---
+title: Currencies
+description: Supported currencies and their markets
+---
+
+## Supported currencies
+
+| Code | Currency | Markets |
+|------|----------|---------|
+| `NGN` | Nigerian Naira | Nigeria |
+| `GHS` | Ghanaian Cedi | Ghana |
+| `KES` | Kenyan Shilling | Kenya |
+| `XOF` | West African CFA Franc | Senegal, Ivory Coast, Togo, Benin, Mali, Burkina Faso |
+| `USD` | US Dollar | Card payments (all markets) |
+
+## Amount format
+
+All amounts are passed as **strings** representing the amount in the standard unit of the currency:
+
+```json
+{ "amount": "1000", "currency": "NGN" }   // ₦1,000
+{ "amount": "500",  "currency": "XOF" }   // 500 XOF
+{ "amount": "10",   "currency": "USD" }   // $10
+```
+
+<Note>
+Wallet balances returned by the API are in the **smallest currency unit** (kobo for NGN, pesewas for GHS). Divide by 100 to display to users.
+</Note>
+
+## XOF countries
+
+When initiating a payment in XOF, you must include `country`, `firstname`, and `lastname`:
+
+```json
+{
+  "currency": "XOF",
+  "country": "senegal",
+  "firstname": "Amadou",
+  "lastname": "Diallo"
+}
+```
+
+Accepted country values for XOF:
+
+| Value | Country |
+|-------|---------|
+| `senegal` | Senegal |
+| `ivory coast` | Ivory Coast |
+| `togo` | Togo |
+| `benin` | Benin |
+| `mali` | Mali |
+| `burkina faso` | Burkina Faso |

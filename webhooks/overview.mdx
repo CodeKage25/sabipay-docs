@@ -1,0 +1,48 @@
+---
+title: Webhooks Overview
+description: Get notified automatically when payments succeed
+---
+
+## What are webhooks?
+
+Instead of polling, you can register a webhook URL in your dashboard. When a payment is confirmed, SabiPay sends a `POST` request to your URL with the payment details.
+
+## Set up your webhook
+
+1. Go to **Dashboard → Settings**
+2. Enter your webhook URL under **Webhook**
+3. Save — SabiPay will start sending events to that URL
+
+## Payload
+
+```json
+{
+  "event": "payment.success",
+  "amount": 100000,
+  "currency": "NGN",
+  "summary": "MoMo payment received via opay (ref: a1b2c3d4-...)",
+  "transactionId": 42,
+  "timestamp": "2026-04-15T09:00:00.000Z"
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `event` | Always `"payment.success"` for now |
+| `amount` | Amount in the smallest unit (kobo for NGN, pesewas for GHS, etc.) |
+| `currency` | Currency code |
+| `summary` | Human-readable description |
+| `transactionId` | SabiPay internal transaction ID |
+| `timestamp` | ISO 8601 timestamp |
+
+<Note>
+`amount` is in the smallest currency unit. Divide by 100 to get the standard amount (e.g. `100000` kobo = ₦1,000).
+</Note>
+
+## Retries
+
+Webhooks are fire-and-forget with a **10-second timeout**. If your server doesn't respond in time, the event is not retried automatically. Use the [recovery endpoint](/payments/status-polling#recovery) to reconcile missed events.
+
+## Security
+
+Every webhook request includes a signature header. See [Webhook Verification](/webhooks/verification) for how to verify it.

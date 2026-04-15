@@ -1,0 +1,78 @@
+---
+title: Wallet
+description: Check your wallet balance and transaction history
+---
+
+## GET /merchant/wallet
+
+Returns the current wallet balance.
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "balance": 100000,
+    "currency": "NGN",
+    "dailySendLimit": 50000
+  }
+}
+```
+
+<Note>
+`balance` is in the smallest currency unit (kobo for NGN). Divide by 100 for display: `100000 kobo = ₦1,000`.
+</Note>
+
+---
+
+## GET /merchant/payments
+
+Returns all payment attempts (pending, failed, and successful).
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Query parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `status` | Filter by status: `pending`, `success`, or `failed` |
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "createdAt": "2026-04-15T09:00:00.000Z",
+      "customerRef": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "momo",
+      "status": "success",
+      "amount": 1000,
+      "currency": "NGN",
+      "provider": "opay",
+      "merchantEmail": "you@company.com"
+    }
+  ]
+}
+```
+
+---
+
+## GET /merchant/history
+
+Returns confirmed successful payments only (wallet credited).
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Query parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `type` | `RECEIVE` or `SEND` |
+| `from_date` | ISO date string |
+| `to_date` | ISO date string |

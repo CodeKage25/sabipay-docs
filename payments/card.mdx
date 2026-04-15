@@ -1,0 +1,131 @@
+---
+title: Card Payments
+description: Collect USD card payments with 3DS support
+---
+
+## Overview
+
+Card payments are processed in **USD** and require two steps:
+
+1. **Initiate** — submit card details (encrypted)
+2. **Charge** — trigger the charge (handled automatically by SabiPay)
+
+Some cards require **3DS authentication** — the customer is redirected to their bank to verify. SabiPay handles this automatically and returns a redirect URL when needed.
+
+## Initiate a Card Payment
+
+<Tabs>
+  <Tab title="Merchant API">
+    ```bash
+    POST /pay/merchant-api/card
+    ```
+    **Headers:**
+    ```
+    x-auth-merchantid: YOUR_MERCHANT_ID
+    x-auth-apikey: YOUR_API_KEY
+    ```
+  </Tab>
+  <Tab title="JWT">
+    ```bash
+    POST /pay/card/initiate
+    ```
+    **Headers:**
+    ```
+    Authorization: Bearer YOUR_TOKEN
+    ```
+  </Tab>
+</Tabs>
+
+### Request body
+
+```json
+{
+  "reference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "amount": "10",
+  "currency": "USD",
+  "pan": "4111111111111111",
+  "cvv": "123",
+  "expiryMonth": "12",
+  "expiryYear": "27",
+  "callbackUrl": "https://yoursite.com/payment/callback",
+  "customerEmail": "customer@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "2348100000000"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `reference` | string (UUID) | No | Your order ID. Auto-generated if omitted. |
+| `amount` | string | Yes | Amount in USD |
+| `currency` | string | Yes | Must be `"USD"` |
+| `pan` | string | Yes | Card number (spaces allowed) |
+| `cvv` | string | Yes | Card CVV |
+| `expiryMonth` | string | Yes | 2-digit month e.g. `"05"` |
+| `expiryYear` | string | Yes | 2-digit year e.g. `"27"` |
+| `callbackUrl` | string | Yes | Redirect URL after 3DS |
+| `customerEmail` | string | Yes | Customer email |
+| `firstName` | string | Yes | Customer first name |
+| `lastName` | string | Yes | Customer last name |
+| `phone` | string | Yes | Customer phone |
+
+<Note>
+Card data is encrypted with AES-256-CBC before being sent to the payment processor. Never log raw card details.
+</Note>
+
+### Response — immediate success
+
+```json
+{
+  "success": true,
+  "message": "Card payment processed",
+  "data": {
+    "reference": "a1b2c3d4-...",
+    "status": "Successful"
+  }
+}
+```
+
+### Response — 3DS required
+
+```json
+{
+  "success": true,
+  "message": "3DS authentication required",
+  "data": {
+    "requiresRedirect": true,
+    "reference": "a1b2c3d4-...",
+    "redirect_auth_data": "https://bank.com/3ds/..."
+  }
+}
+```
+
+When `requiresRedirect` is `true`, redirect the customer to `redirect_auth_data` to complete 3DS verification. After they return to your `callbackUrl`, poll the status endpoint.
+
+## Check Card Status
+
+<Tabs>
+  <Tab title="Merchant API">
+    ```bash
+    GET /pay/merchant-api/card/status/{reference}
+    ```
+  </Tab>
+  <Tab title="JWT">
+    ```bash
+    GET /pay/card/status/{reference}
+    ```
+  </Tab>
+</Tabs>
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Card status",
+  "data": {
+    "status": "success"
+  }
+}
+```

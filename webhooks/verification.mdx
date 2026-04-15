@@ -1,0 +1,90 @@
+---
+title: Webhook Verification
+description: Verify that webhook requests are genuinely from SabiPay
+---
+
+## How it works
+
+Every request SabiPay sends to your webhook URL includes a signature in the `X-SabiPay-Signature` header. This is an HMAC-SHA256 hash of the raw request body, signed with your webhook secret.
+
+Verify it on your server before processing the event.
+
+## Verification examples
+
+<CodeGroup>
+
+```javascript Node.js
+const crypto = require('crypto');
+
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-sabipay-signature'];
+  const expected = crypto
+    .createHmac('sha256', process.env.SABIPAY_WEBHOOK_SECRET)
+    .update(req.body) // raw Buffer — do NOT parse JSON first
+    .digest('hex');
+
+  if (signature !== expected) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  const event = JSON.parse(req.body);
+  // Safe to process
+  console.log('Payment received:', event.amount / 100, event.currency);
+
+  res.status(200).send('OK');
+});
+```
+
+```python Python
+import hmac
+import hashlib
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    signature = request.headers.get('X-SabiPay-Signature')
+    expected = hmac.new(
+        os.environ['SABIPAY_WEBHOOK_SECRET'].encode(),
+        request.data,  # raw bytes
+        hashlib.sha256
+    ).hexdigest()
+
+    if not hmac.compare_digest(signature, expected):
+        abort(401)
+
+    event = request.get_json()
+    # Safe to process
+    print(f"Payment received: {event['amount'] / 100} {event['currency']}")
+
+    return 'OK', 200
+```
+
+```php PHP
+<?php
+$payload = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_SABIPAY_SIGNATURE'] ?? '';
+$expected = hash_hmac('sha256', $payload, getenv('SABIPAY_WEBHOOK_SECRET'));
+
+if (!hash_equals($expected, $signature)) {
+    http_response_code(401);
+    exit('Invalid signature');
+}
+
+$event = json_decode($payload, true);
+// Safe to process
+echo 'OK';
+```
+
+</CodeGroup>
+
+## Important notes
+
+<Warning>
+Always read the **raw request body** before parsing JSON. If you parse JSON first and then re-serialize it to compute the hash, the signature will not match due to whitespace differences.
+</Warning>
+
+- Use `hmac.compare_digest` (Python) or `crypto.timingSafeEqual` (Node.js) for comparison — these prevent timing attacks
+- Your webhook secret is in your dashboard under **Settings → Webhook Secret**. Keep it private.
+- Respond with a `200` status quickly. If your processing takes time, respond `200` immediately and handle the event asynchronously.

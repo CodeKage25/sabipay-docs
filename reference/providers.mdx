@@ -1,0 +1,81 @@
+---
+title: Payment Providers
+description: All supported mobile money providers and their codes
+---
+
+## Provider codes
+
+Use these exact values in the `payment_provider` field.
+
+### Nigeria (NGN)
+
+| Code | Provider |
+|------|----------|
+| `opay` | OPay |
+
+### Ghana (GHS)
+
+| Code | Provider |
+|------|----------|
+| `MTN` | MTN MoMo |
+| `AIRTELTIGO` | AirtelTigo |
+| `VODAFONE` | Vodafone Cash |
+
+### Kenya (KES)
+
+| Code | Provider |
+|------|----------|
+| `MPESA` | M-Pesa (Safaricom) |
+
+### Senegal (XOF)
+
+| Code | Provider |
+|------|----------|
+| `wave` | Wave |
+| `orange` | Orange Money |
+| `free` | Free Money |
+| `wizall` | Wizall |
+| `expresso` | Expresso |
+
+### Ivory Coast (XOF)
+
+| Code | Provider |
+|------|----------|
+| `orange` | Orange Money |
+| `mtn` | MTN MoMo |
+| `moov` | Moov Money |
+| `wave` | Wave |
+
+### Togo (XOF)
+
+| Code | Provider |
+|------|----------|
+| `moov` | Moov Money |
+| `t-money` | T-Money |
+
+### Benin (XOF)
+
+| Code | Provider |
+|------|----------|
+| `mtn` | MTN MoMo |
+| `moov` | Moov Money |
+
+### Mali (XOF)
+
+| Code | Provider |
+|------|----------|
+| `orange` | Orange Money |
+| `moov` | Moov Money |
+
+### Burkina Faso (XOF)
+
+| Code | Provider |
+|------|----------|
+| `orange` | Orange Money |
+| `moov` | Moov Money |
+
+---
+
+<Note>
+For XOF providers, always pass the `country` field alongside the provider code since the same code (e.g. `orange`) is used across multiple countries.
+</Note>

@@ -1,0 +1,93 @@
+---
+title: Quickstart
+description: Accept your first payment in under 5 minutes
+---
+
+## 1. Create an account
+
+Sign up at [sabipays.com/merchant/signup](https://www.sabipays.com/merchant/signup). After email verification you'll have access to your dashboard.
+
+## 2. Get your credentials
+
+In your dashboard go to **Wallet** — you'll find your **Merchant ID** and **API Key** there. These are used for the Merchant API (header-based auth).
+
+Alternatively, use JWT authentication if you're building a server-to-server integration (see [Authentication](/authentication)).
+
+## 3. Initiate a Mobile Money payment
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/merchant-api/momo \
+  -H "Content-Type: application/json" \
+  -H "x-auth-merchantid: YOUR_MERCHANT_ID" \
+  -H "x-auth-apikey: YOUR_API_KEY" \
+  -d '{
+    "amount": "1000",
+    "currency": "NGN",
+    "phone_no": "2348100000000",
+    "payment_provider": "opay"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch(
+  'https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/merchant-api/momo',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-merchantid': 'YOUR_MERCHANT_ID',
+      'x-auth-apikey': 'YOUR_API_KEY',
+    },
+    body: JSON.stringify({
+      amount: '1000',
+      currency: 'NGN',
+      phone_no: '2348100000000',
+      payment_provider: 'opay',
+    }),
+  }
+);
+
+const data = await response.json();
+const { customer_reference } = data.data;
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/merchant-api/momo',
+    headers={
+        'x-auth-merchantid': 'YOUR_MERCHANT_ID',
+        'x-auth-apikey': 'YOUR_API_KEY',
+    },
+    json={
+        'amount': '1000',
+        'currency': 'NGN',
+        'phone_no': '2348100000000',
+        'payment_provider': 'opay',
+    }
+)
+
+data = response.json()
+customer_reference = data['data']['customer_reference']
+```
+
+</CodeGroup>
+
+## 4. Poll for payment status
+
+After initiating, poll the status endpoint every 3–5 seconds until the payment completes:
+
+```bash
+curl https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/merchant-api/momo/status/{customer_reference} \
+  -H "x-auth-merchantid: YOUR_MERCHANT_ID" \
+  -H "x-auth-apikey: YOUR_API_KEY"
+```
+
+When `status` returns `"success"` — the payment is confirmed and your wallet is credited.
+
+<Tip>
+Save the `customer_reference` from the initiate response. You'll need it to check status and for your own order tracking.
+</Tip>

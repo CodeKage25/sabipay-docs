@@ -1,0 +1,43 @@
+---
+title: MoMo Status
+description: Check the status of a mobile money payment
+---
+
+## GET /pay/merchant-api/momo/status/:customerReference
+
+Query the current status of a mobile money payment.
+
+### Headers
+
+```
+x-auth-merchantid: YOUR_MERCHANT_ID
+x-auth-apikey: YOUR_API_KEY
+```
+
+### Path parameter
+
+| Parameter | Description |
+|-----------|-------------|
+| `customerReference` | The UUID returned from the initiate call |
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "MoMo status",
+  "data": {
+    "status": "success"
+  }
+}
+```
+
+| `status` | Meaning |
+|----------|---------|
+| `pending` | Awaiting customer action — poll again in 3–5 seconds |
+| `success` | Confirmed — wallet credited |
+| `failed` | Payment declined or expired |
+
+<Warning>
+Do not stop polling on `pending`. Keep polling until you get `success` or `failed`, or until your timeout (recommended: 3 minutes).
+</Warning>

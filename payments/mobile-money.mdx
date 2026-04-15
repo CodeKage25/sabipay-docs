@@ -1,0 +1,134 @@
+---
+title: Mobile Money
+description: Collect payments via mobile money networks across Africa
+---
+
+## Overview
+
+Mobile money payments follow a two-step flow:
+
+1. **Initiate** — send a payment request to the customer's phone
+2. **Poll status** — check until the customer approves or declines
+
+Some providers (e.g. Wave Senegal, OPay) return a `redirect_url` — open this in the browser so the customer completes payment on the provider's checkout page.
+
+## Initiate a Payment
+
+<Tabs>
+  <Tab title="Merchant API">
+    ```bash
+    POST /pay/merchant-api/momo
+    ```
+
+    **Headers:**
+    ```
+    x-auth-merchantid: YOUR_MERCHANT_ID
+    x-auth-apikey: YOUR_API_KEY
+    ```
+  </Tab>
+  <Tab title="JWT">
+    ```bash
+    POST /pay/momo/initiate
+    ```
+
+    **Headers:**
+    ```
+    Authorization: Bearer YOUR_TOKEN
+    ```
+  </Tab>
+</Tabs>
+
+### Request body
+
+```json
+{
+  "customerReference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "amount": "1000",
+  "currency": "NGN",
+  "phone_no": "2348100000000",
+  "payment_provider": "opay"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `customerReference` | string (UUID) | No | Your order ID. Auto-generated if omitted. Must be UUID format. |
+| `amount` | string | Yes | Amount in the local currency (e.g. `"1000"` NGN, `"500"` XOF) |
+| `currency` | string | Yes | Currency code — `NGN`, `GHS`, `KES`, `XOF` |
+| `phone_no` | string | Yes | Customer phone in international format (e.g. `"2348100000000"`) |
+| `payment_provider` | string | Yes | Mobile money network (see [Providers](/reference/providers)) |
+| `firstname` | string | XOF only | Customer first name |
+| `lastname` | string | XOF only | Customer last name |
+| `country` | string | XOF only | Country name e.g. `"senegal"`, `"ivory coast"` |
+| `return_url` | string | No | URL to redirect after payment |
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "MoMo payment initiated",
+  "data": {
+    "customer_reference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": true,
+    "message": "Transaction is processing",
+    "data": {
+      "status": "Processing",
+      "reference": "AQ1DRS8EV9KFNYCWJZPG",
+      "customer_reference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "amount": "1000.00",
+      "currency": "NGN",
+      "redirect_url": null
+    }
+  }
+}
+```
+
+<Tip>
+If `redirect_url` is returned (common for Wave and OPay), open it in a browser for the customer to complete checkout. Then poll the status endpoint to confirm.
+</Tip>
+
+## Check Payment Status
+
+<Tabs>
+  <Tab title="Merchant API">
+    ```bash
+    GET /pay/merchant-api/momo/status/{customer_reference}
+    ```
+  </Tab>
+  <Tab title="JWT">
+    ```bash
+    GET /pay/momo/status/{customer_reference}
+    ```
+  </Tab>
+</Tabs>
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "MoMo status",
+  "data": {
+    "status": "success"
+  }
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Customer hasn't approved yet — keep polling |
+| `success` | Payment confirmed — wallet credited |
+| `failed` | Payment declined or timed out |
+
+## Phone Number Format
+
+Always use the international format **without** the `+` prefix:
+
+| Country | Format | Example |
+|---------|--------|---------|
+| Nigeria | `234XXXXXXXXXX` | `2348100000000` |
+| Ghana | `233XXXXXXXXX` | `233241234567` |
+| Kenya | `254XXXXXXXXX` | `254712345678` |
+| Senegal | `221XXXXXXXXX` | `221771234567` |
+| Ivory Coast | `225XXXXXXXXXX` | `2250700000000` |

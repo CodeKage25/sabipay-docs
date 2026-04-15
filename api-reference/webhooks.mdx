@@ -1,0 +1,47 @@
+---
+title: Webhook Events
+description: Events sent to your webhook URL
+---
+
+## payment.success
+
+Fired when a payment is confirmed and the merchant wallet is credited.
+
+### Headers
+
+```
+Content-Type: application/json
+X-SabiPay-Signature: <hmac-sha256-hex>
+User-Agent: SabiPay-Webhook/1.0
+```
+
+### Payload
+
+```json
+{
+  "event": "payment.success",
+  "amount": 100000,
+  "currency": "NGN",
+  "summary": "MoMo payment received via opay (ref: a1b2c3d4-...)",
+  "transactionId": 42,
+  "timestamp": "2026-04-15T09:00:00.000Z"
+}
+```
+
+### Verifying the signature
+
+```javascript
+const crypto = require('crypto');
+
+const signature = req.headers['x-sabipay-signature'];
+const expected = crypto
+  .createHmac('sha256', process.env.SABIPAY_WEBHOOK_SECRET)
+  .update(req.body) // raw bytes, not parsed JSON
+  .digest('hex');
+
+if (signature !== expected) {
+  return res.status(401).send('Unauthorized');
+}
+```
+
+See [Webhook Verification](/webhooks/verification) for full examples in Node.js, Python, and PHP.

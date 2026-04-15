@@ -1,0 +1,68 @@
+---
+title: Initiate MoMo
+description: Send a payment request to a customer's mobile wallet
+---
+
+## POST /pay/merchant-api/momo
+
+Initiates a mobile money payment request. The customer receives a prompt on their phone to approve.
+
+### Headers
+
+```
+x-auth-merchantid: YOUR_MERCHANT_ID
+x-auth-apikey: YOUR_API_KEY
+Content-Type: application/json
+```
+
+### Request body
+
+```json
+{
+  "customerReference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "amount": "1000",
+  "currency": "NGN",
+  "phone_no": "2348100000000",
+  "payment_provider": "opay",
+  "return_url": "https://yoursite.com/payment/return"
+}
+```
+
+**For XOF currencies, also include:**
+
+```json
+{
+  "firstname": "Amadou",
+  "lastname": "Diallo",
+  "country": "senegal"
+}
+```
+
+### Response — 201 Created
+
+```json
+{
+  "success": true,
+  "message": "MoMo initiated",
+  "data": {
+    "customer_reference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": true,
+    "message": "Transaction is processing",
+    "data": {
+      "status": "Processing",
+      "reference": "AQ1DRS8EV9KFNYCWJZPG",
+      "customer_reference": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "amount": "1000.00",
+      "currency": "NGN",
+      "phone_no": "2348100000000",
+      "payment_provider": "opay",
+      "redirect_url": null,
+      "date": "2026-04-15T09:00:00.000Z"
+    }
+  }
+}
+```
+
+<Tip>
+Save `customer_reference` — you'll use it to poll status. If `redirect_url` is present, open it in the browser for the customer to complete checkout.
+</Tip>

@@ -1,0 +1,46 @@
+---
+title: Authentication
+description: Sign in to get a JWT access token
+---
+
+<Note>
+For server-to-server integrations, use Merchant API headers (`x-auth-merchantid` + `x-auth-apikey`) instead of JWT. See [Authentication](/authentication).
+</Note>
+
+## POST /merchant/auth/merchant-signin
+
+Sign in with email and password to receive a JWT access token.
+
+### Request
+
+```bash
+POST /merchant/auth/merchant-signin
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "you@company.com",
+  "password": "yourpassword"
+}
+```
+
+### Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "isEmailVerified": true,
+  "id": 6
+}
+```
+
+### Use the token
+
+Pass the token in every subsequent request:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Tokens expire after **24 hours**.

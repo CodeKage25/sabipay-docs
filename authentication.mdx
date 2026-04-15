@@ -1,0 +1,71 @@
+---
+title: Authentication
+description: Two ways to authenticate with the SabiPay API
+---
+
+SabiPay supports two authentication methods depending on your use case.
+
+## Method 1 — Merchant API (Recommended for integrations)
+
+Use your **Merchant ID** and **API Key** as request headers. Find these in your dashboard under **Wallet → API Credentials**.
+
+```bash
+x-auth-merchantid: YOUR_MERCHANT_ID
+x-auth-apikey: YOUR_API_KEY
+```
+
+All Merchant API endpoints are prefixed with `/pay/merchant-api/`:
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /pay/merchant-api/momo` | Initiate MoMo payment |
+| `GET /pay/merchant-api/momo/status/:ref` | Check MoMo status |
+| `POST /pay/merchant-api/card` | Initiate card payment |
+| `GET /pay/merchant-api/card/status/:ref` | Check card status |
+
+<Warning>
+Keep your API Key private. Never expose it in frontend JavaScript or mobile apps. All requests must originate from your server.
+</Warning>
+
+## Method 2 — JWT (For dashboard integrations)
+
+Sign in to get a bearer token, then use it in the `Authorization` header.
+
+### Sign in
+
+```bash
+POST /merchant/auth/merchant-signin
+```
+
+```json
+{
+  "email": "you@company.com",
+  "password": "yourpassword"
+}
+```
+
+**Response:**
+
+```json
+{
+  "access_token": "eyJhbGci...",
+  "isEmailVerified": true,
+  "id": 6
+}
+```
+
+### Use the token
+
+```bash
+Authorization: Bearer eyJhbGci...
+```
+
+<Note>
+JWT tokens expire after 24 hours. Re-authenticate to get a new token.
+</Note>
+
+## Getting your credentials
+
+1. Log in to your [SabiPay dashboard](https://www.sabipays.com/merchant/dashboard)
+2. Go to **Wallet**
+3. Your **Merchant ID** and **API Key** are shown under **API Credentials**
