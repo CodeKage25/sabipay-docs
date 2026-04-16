@@ -7,7 +7,7 @@ description: Events sent to your webhook URL
 
 Fired when a payment is confirmed and the merchant wallet is credited.
 
-### Headers
+### Request headers (sent by SabiPay)
 
 ```
 Content-Type: application/json
@@ -20,28 +20,57 @@ User-Agent: SabiPay-Webhook/1.0
 ```json
 {
   "event": "payment.success",
-  "amount": 100000,
-  "currency": "NGN",
-  "summary": "MoMo payment received via opay (ref: a1b2c3d4-...)",
+  "amount": 500000,
+  "currency": "XOF",
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
+  "customerReference": "550e8400-e29b-41d4-a716-446655440000",
   "transactionId": 42,
-  "timestamp": "2026-04-15T09:00:00.000Z"
+  "summary": "MoMo payment received via wave (ref: 550e8400-...)",
+  "timestamp": "2026-04-16T10:30:00.000Z"
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event` | string | Always `"payment.success"` |
+| `amount` | number | Amount in smallest currency unit — divide by 100 |
+| `currency` | string | `NGN` · `XOF` · `GHS` · `KES` · `USD` |
+| `reference` | string | The `customerReference` UUID from your initiate request |
+| `customerReference` | string | Same as `reference` |
+| `transactionId` | number | SabiPay internal transaction ID |
+| `summary` | string | Human-readable description |
+| `timestamp` | string | ISO 8601 UTC timestamp |
 
 ### Verifying the signature
 
-```javascript
+```javascript Node.js
 const crypto = require('crypto');
 
-const signature = req.headers['x-sabipay-signature'];
-const expected = crypto
-  .createHmac('sha256', process.env.SABIPAY_WEBHOOK_SECRET)
-  .update(req.body) // raw bytes, not parsed JSON
-  .digest('hex');
+app.post('/webhook', express.json(), (req, res) => {
+  const signature = req.headers['x-sabipay-signature'];
+  const expected = crypto
+    .createHmac('sha256', process.env.SABIPAY_WEBHOOK_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
 
-if (signature !== expected) {
-  return res.status(401).send('Unauthorized');
-}
+  if (signature !== expected) {
+    return res.status(403).send('Invalid signature');
+  }
+
+  const { event, customerReference, amount, currency } = req.body;
+  if (event === 'payment.success') {
+    // find order by customerReference, mark as paid
+    console.log(`Received ${amount / 100} ${currency} for ref ${customerReference}`);
+  }
+
+  res.status(200).send('OK');
+});
 ```
 
 See [Webhook Verification](/webhooks/verification) for full examples in Node.js, Python, and PHP.
+
+### Where to get your webhook secret
+
+**Dashboard:** Settings → Webhook → click **Show** under Webhook Secret → **Copy**
+
+**API:** `GET /merchant/api-info` 🔒 → `data.webhookSecret`

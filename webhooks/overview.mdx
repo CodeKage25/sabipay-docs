@@ -5,44 +5,64 @@ description: Get notified automatically when payments succeed
 
 ## What are webhooks?
 
-Instead of polling, you can register a webhook URL in your dashboard. When a payment is confirmed, SabiPay sends a `POST` request to your URL with the payment details.
+Instead of polling for payment status, register a webhook URL and SabiPay will **instantly** POST to your server the moment a payment is confirmed.
+
+## How it works
+
+1. Customer initiates payment → provider processes it
+2. Provider pushes confirmation to SabiPay
+3. SabiPay credits the merchant wallet
+4. SabiPay immediately POSTs `payment.success` to **your** webhook URL
+
+Your server is notified within seconds — no polling required.
 
 ## Set up your webhook
 
-1. Go to **Dashboard → Settings**
-2. Enter your webhook URL under **Webhook**
-3. Save — SabiPay will start sending events to that URL
+1. Log in to your **Merchant Dashboard**
+2. Go to **Settings → Webhook**
+3. Enter your HTTPS endpoint URL and click **Save webhook**
+4. Copy your **Webhook Secret** from the same page (click **Show** to reveal it)
 
 ## Payload
 
 ```json
 {
   "event": "payment.success",
-  "amount": 100000,
-  "currency": "NGN",
-  "summary": "MoMo payment received via opay (ref: a1b2c3d4-...)",
+  "amount": 500000,
+  "currency": "XOF",
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
+  "customerReference": "550e8400-e29b-41d4-a716-446655440000",
   "transactionId": 42,
-  "timestamp": "2026-04-15T09:00:00.000Z"
+  "summary": "MoMo payment received via wave (ref: 550e8400-...)",
+  "timestamp": "2026-04-16T10:30:00.000Z"
 }
 ```
 
 | Field | Description |
 |-------|-------------|
-| `event` | Always `"payment.success"` for now |
-| `amount` | Amount in the smallest unit (kobo for NGN, pesewas for GHS, etc.) |
-| `currency` | Currency code |
-| `summary` | Human-readable description |
+| `event` | Always `"payment.success"` |
+| `amount` | Amount in smallest currency unit (÷ 100 for real value) |
+| `currency` | Currency code e.g. `NGN`, `XOF`, `GHS`, `KES` |
+| `reference` | The `customerReference` UUID from initiate |
+| `customerReference` | Same as `reference` — included for compatibility |
 | `transactionId` | SabiPay internal transaction ID |
+| `summary` | Human-readable description |
 | `timestamp` | ISO 8601 timestamp |
 
 <Note>
-`amount` is in the smallest currency unit. Divide by 100 to get the standard amount (e.g. `100000` kobo = ₦1,000).
+`amount` is in the smallest currency unit. Divide by 100 to get the real amount (e.g. `500000` = 5,000 XOF).
 </Note>
+
+<Tip>
+Use `customerReference` to match the webhook to the order you initiated. It is the UUID you passed (or received back) from `POST /pay/momo/initiate`.
+</Tip>
 
 ## Retries
 
-Webhooks are fire-and-forget with a **10-second timeout**. If your server doesn't respond in time, the event is not retried automatically. Use the [recovery endpoint](/payments/status-polling#recovery) to reconcile missed events.
+Webhooks are fire-and-forget with a **10-second timeout**. If your server doesn't respond `200` in time, the event is not retried automatically.
+
+A background job runs every **30 seconds** as a fallback — it re-queries any pending transactions and fires the webhook if they have since succeeded. You can also trigger it manually via `GET /pay/recover` 🔒.
 
 ## Security
 
-Every webhook request includes a signature header. See [Webhook Verification](/webhooks/verification) for how to verify it.
+Every request includes an `X-SabiPay-Signature` header. See [Webhook Verification](/webhooks/verification) for how to verify it.

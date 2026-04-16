@@ -86,5 +86,6 @@ Always read the **raw request body** before parsing JSON. If you parse JSON firs
 </Warning>
 
 - Use `hmac.compare_digest` (Python) or `crypto.timingSafeEqual` (Node.js) for comparison — these prevent timing attacks
-- Your webhook secret is in your dashboard under **Settings → Webhook Secret**. Keep it private.
-- Respond with a `200` status quickly. If your processing takes time, respond `200` immediately and handle the event asynchronously.
+- Your webhook secret is in **Settings → Webhook → Webhook Secret** on your merchant dashboard. Click **Show** to reveal it, then **Copy**. Keep it private — never expose it in client-side code.
+- Respond with `200` quickly. If processing takes time, respond `200` immediately and handle the event asynchronously.
+- The secret is unique per merchant and auto-generated. You can also retrieve it via `GET /merchant/api-info` → `data.webhookSecret`.
