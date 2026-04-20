@@ -40,62 +40,64 @@
       "url": "https://www.sabipays.com/merchant/dashboard"
     }
   ],
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "introduction",
-        "quickstart",
-        "authentication"
-      ]
-    },
-    {
-      "group": "Payments",
-      "pages": [
-        "payments/mobile-money",
-        "payments/card",
-        "payments/status-polling"
-      ]
-    },
-    {
-      "group": "Payouts",
-      "pages": [
-        "payouts/overview",
-        "payouts/bank-account",
-        "payouts/virtual-accounts",
-        "payouts/withdraw",
-        "payouts/mobile-money"
-      ]
-    },
-    {
-      "group": "Webhooks",
-      "pages": [
-        "webhooks/overview",
-        "webhooks/verification"
-      ]
-    },
-    {
-      "group": "Reference",
-      "pages": [
-        "reference/currencies",
-        "reference/providers",
-        "reference/banks",
-        "reference/errors"
-      ]
-    },
-    {
-      "group": "API Reference",
-      "pages": [
-        "api-reference/authentication",
-        "api-reference/momo-initiate",
-        "api-reference/momo-status",
-        "api-reference/card-initiate",
-        "api-reference/card-status",
-        "api-reference/wallet",
-        "api-reference/webhooks"
-      ]
-    }
-  ],
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "authentication"
+        ]
+      },
+      {
+        "group": "Payments",
+        "pages": [
+          "payments/mobile-money",
+          "payments/card",
+          "payments/status-polling"
+        ]
+      },
+      {
+        "group": "Payouts",
+        "pages": [
+          "payouts/overview",
+          "payouts/bank-account",
+          "payouts/virtual-accounts",
+          "payouts/withdraw",
+          "payouts/mobile-money"
+        ]
+      },
+      {
+        "group": "Webhooks",
+        "pages": [
+          "webhooks/overview",
+          "webhooks/verification"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/currencies",
+          "reference/providers",
+          "reference/banks",
+          "reference/errors"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api-reference/authentication",
+          "api-reference/momo-initiate",
+          "api-reference/momo-status",
+          "api-reference/card-initiate",
+          "api-reference/card-status",
+          "api-reference/wallet",
+          "api-reference/webhooks"
+        ]
+      }
+    ]
+  },
   "footerSocials": {
     "twitter": "https://twitter.com/sabipay",
     "github": "https://github.com/sabipay"
