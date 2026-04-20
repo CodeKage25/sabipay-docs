@@ -1,0 +1,183 @@
+---
+title: Withdraw
+description: Send your wallet balance to a bank account or mobile money wallet
+---
+
+## POST /merchant/wallet/withdraw
+
+Submits a withdrawal. The wallet is debited immediately and a payout is initiated to your linked account.
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Request body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `amount` | string | ✓ | Amount to withdraw (in display units, e.g. `"5000"` for ₦5,000) |
+| `currency` | string | ✓ | Your wallet currency: `NGN`, `GHS`, `KES`, or `XOF` |
+| `method` | string | ✓ | `"bank"` or `"momo"` |
+| `notes` | string | | Optional note for your records |
+| `phone` | string | ✓ for momo | Mobile money phone number (with country code) |
+| `momoProvider` | string | ✓ for momo | Payout provider code (see [payout providers](/payouts/mobile-money)) |
+| `momoCountry` | string | ✓ for momo | Country name in lowercase (e.g. `"senegal"`) |
+
+---
+
+### Bank withdrawal (NGN)
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sabipay-backend-arvbv.ondigitalocean.app/api/merchant/wallet/withdraw \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": "5000",
+    "currency": "NGN",
+    "method": "bank"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch(
+  'https://sabipay-backend-arvbv.ondigitalocean.app/api/merchant/wallet/withdraw',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      amount: '5000',
+      currency: 'NGN',
+      method: 'bank',
+    }),
+  }
+);
+
+const data = await response.json();
+```
+
+</CodeGroup>
+
+---
+
+### Mobile money withdrawal (XOF)
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sabipay-backend-arvbv.ondigitalocean.app/api/merchant/wallet/withdraw \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": "5000",
+    "currency": "XOF",
+    "method": "momo",
+    "phone": "+221701234567",
+    "momoProvider": "wave",
+    "momoCountry": "senegal"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch(
+  'https://sabipay-backend-arvbv.ondigitalocean.app/api/merchant/wallet/withdraw',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      amount: '5000',
+      currency: 'XOF',
+      method: 'momo',
+      phone: '+221701234567',
+      momoProvider: 'wave',
+      momoCountry: 'senegal',
+    }),
+  }
+);
+
+const data = await response.json();
+```
+
+</CodeGroup>
+
+---
+
+### Response
+
+#### Success
+
+```json
+{
+  "success": true,
+  "message": "Withdrawal initiated — funds are on the way",
+  "data": {
+    "id": 12,
+    "createdAt": "2026-04-20T10:30:00.000Z",
+    "merchantId": 9,
+    "amount": 5000,
+    "currency": "NGN",
+    "status": "processing",
+    "method": "bank",
+    "reference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }
+}
+```
+
+#### Insufficient balance
+
+```json
+{
+  "statusCode": 403,
+  "message": "Insufficient wallet balance"
+}
+```
+
+#### Payout failed (wallet is automatically refunded)
+
+```json
+{
+  "statusCode": 403,
+  "message": "Payout failed: ..."
+}
+```
+
+---
+
+### Withdrawal statuses
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Withdrawal created but payout not yet attempted (e.g. no bank account linked) |
+| `processing` | Payout successfully initiated — funds in transit |
+| `completed` | Funds confirmed delivered |
+| `failed` | Payout failed — wallet has been refunded |
+
+---
+
+## GET /merchant/wallet/withdrawal-history
+
+Returns all past withdrawals for your account.
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 12,
+      "createdAt": "2026-04-20T10:30:00.000Z",
+      "amount": 5000,
+      "currency": "NGN",
+      "status": "processing",
+      "method": "bank",
+      "reference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    }
+  ]
+}
+```

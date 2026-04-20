@@ -1,0 +1,83 @@
+---
+title: Mobile Money Payouts
+description: Send funds to mobile money wallets across West Africa
+---
+
+## Payout provider codes
+
+When withdrawing via mobile money, pass the `momoProvider` and `momoCountry` fields with the values below.
+
+<Warning>
+Payout provider codes are **different** from collection provider codes. Always use the values in this table — not the ones from the payment providers page — when submitting a withdrawal.
+</Warning>
+
+### Senegal (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `wave` | Wave | `senegal` |
+| `orange` | Orange Money | `senegal` |
+| `free` | Free Money | `senegal` |
+| `expresso` | Expresso | `senegal` |
+
+### Ivory Coast (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `orange` | Orange Money | `ivory coast` |
+| `mtn` | MTN MoMo | `ivory coast` |
+| `moov` | Moov Money | `ivory coast` |
+
+### Togo (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `moov` | Moov Money | `togo` |
+| `t-money` | T-Money | `togo` |
+
+### Benin (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `mtn` | MTN MoMo | `benin` |
+| `moov` | Moov Money | `benin` |
+
+### Mali (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `orange` | Orange Money | `mali` |
+| `moov` | Moov Money | `mali` |
+
+### Burkina Faso (XOF)
+
+| `momoProvider` | Provider | `momoCountry` |
+|----------------|----------|---------------|
+| `orange` | Orange Money | `burkina faso` |
+| `moov` | Moov Money | `burkina faso` |
+
+---
+
+## Minimum amounts
+
+| Currency | Minimum withdrawal |
+|----------|--------------------|
+| XOF | 200 |
+| NGN | Configured per account |
+
+---
+
+## Example
+
+Withdrawing 5,000 XOF via Wave in Senegal:
+
+```json
+{
+  "amount": "5000",
+  "currency": "XOF",
+  "method": "momo",
+  "phone": "+221701234567",
+  "momoProvider": "wave",
+  "momoCountry": "senegal"
+}
+```

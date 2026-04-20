@@ -69,6 +69,54 @@ app.post('/webhook', express.json(), (req, res) => {
 
 See [Webhook Verification](/webhooks/verification) for full examples in Node.js, Python, and PHP.
 
+## withdrawal.paid
+
+Fired when an admin marks your withdrawal request as paid (funds sent).
+
+```json
+{
+  "event": "withdrawal.paid",
+  "amount": 500000,
+  "currency": "NGN",
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
+  "method": "bank",
+  "status": "paid",
+  "timestamp": "2026-04-17T10:30:00.000Z"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event` | string | Always `"withdrawal.paid"` |
+| `amount` | number | Amount in smallest currency unit (÷ 100) |
+| `currency` | string | Currency code |
+| `reference` | string | Unique withdrawal reference UUID |
+| `method` | string | `"bank"` or `"crypto"` |
+| `status` | string | Always `"paid"` |
+| `timestamp` | string | ISO 8601 UTC timestamp |
+
+## withdrawal.failed
+
+Fired when an admin marks your withdrawal request as failed.
+
+```json
+{
+  "event": "withdrawal.failed",
+  "amount": 500000,
+  "currency": "NGN",
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
+  "method": "bank",
+  "status": "failed",
+  "timestamp": "2026-04-17T10:30:00.000Z"
+}
+```
+
+Same fields as `withdrawal.paid` above — only `event` and `status` differ.
+
+Both `withdrawal.*` events are signed with `X-SabiPay-Signature` using the same webhook secret as `payment.success`. Verify using the same code.
+
+---
+
 ### Where to get your webhook secret
 
 **Dashboard:** Settings → Webhook → click **Show** under Webhook Secret → **Copy**

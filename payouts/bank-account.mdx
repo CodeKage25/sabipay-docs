@@ -1,0 +1,84 @@
+---
+title: Link a Bank Account
+description: Connect your NGN bank account for withdrawals
+---
+
+## Link your bank account
+
+Before you can withdraw to a bank, you need to link an account from your dashboard under **Settings → Payout → Bank Account**.
+
+Select your country, then your bank, enter your account number, and the system will automatically resolve and display your account name for confirmation. Only Nigerian banks support automatic name resolution at this time.
+
+You can also link via the API:
+
+### POST /merchant/link-bank-account
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+#### Request body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `accountNumber` | string | ✓ | Your bank account number |
+| `bankName` | string | ✓ | Bank name (e.g. `"Guaranty Trust Bank (GTBank)"`) |
+| `bankCode` | string | ✓ | Bank code from the [banks reference](/reference/banks) |
+| `country` | string | | Country name (defaults to `"NIGERIA"`) |
+| `accountName` | string | | Account holder name (returned from resolve endpoint) |
+
+```json
+{
+  "accountNumber": "0123456789",
+  "bankName": "Guaranty Trust Bank (GTBank)",
+  "bankCode": "000013",
+  "country": "NIGERIA",
+  "accountName": "JOHN DOE"
+}
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "message": "Bank account saved."
+}
+```
+
+---
+
+## Resolve account name
+
+Before linking, you can verify the account holder name.
+
+### GET /merchant/resolve-account
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+#### Query parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `account_number` | The bank account number |
+| `bank_code` | The bank code (see [banks reference](/reference/banks)) |
+
+```bash
+curl "https://sabipay-backend-arvbv.ondigitalocean.app/api/merchant/resolve-account?account_number=0123456789&bank_code=000013" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "message": "Account resolved",
+  "data": {
+    "account_name": "JOHN DOE",
+    "account_number": "0123456789"
+  }
+}
+```
+
+<Warning>
+Always resolve and confirm the account name before linking. Once a withdrawal is submitted it cannot be reversed — funds go to the linked account immediately.
+</Warning>

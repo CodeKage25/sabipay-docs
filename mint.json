@@ -61,6 +61,16 @@
       ]
     },
     {
+      "group": "Payouts",
+      "pages": [
+        "payouts/overview",
+        "payouts/bank-account",
+        "payouts/virtual-accounts",
+        "payouts/withdraw",
+        "payouts/mobile-money"
+      ]
+    },
+    {
       "group": "Webhooks",
       "pages": [
         "webhooks/overview",
@@ -72,6 +82,7 @@
       "pages": [
         "reference/currencies",
         "reference/providers",
+        "reference/banks",
         "reference/errors"
       ]
     },

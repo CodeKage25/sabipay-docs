@@ -1,0 +1,107 @@
+---
+title: Virtual Bank Accounts
+description: Receive NGN bank transfers via a dedicated account number
+---
+
+## What is a virtual account?
+
+A virtual bank account is a dedicated NGN account number assigned to your merchant account. Share it with your customers and any transfer they send — from any Nigerian bank — will automatically credit your SabiPay wallet in real time.
+
+This is the most reliable way to receive NGN payments. There is no payment prompt, no polling, and no customer action beyond a standard bank transfer.
+
+<Note>
+Virtual accounts are currently available for NGN merchants only. You need either a BVN or NIN to create one.
+</Note>
+
+---
+
+## GET /pay/virtual-account
+
+Returns your virtual account details. If you don't have one yet, this returns `null`.
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "accountNumber": "1234567890",
+    "bankName": "Wema Bank",
+    "accountName": "SABIPAY / YOUR COMPANY",
+    "currency": "NGN"
+  }
+}
+```
+
+---
+
+## POST /pay/virtual-account
+
+Creates a virtual account. Only one account is created per merchant — calling this again returns the existing one.
+
+**Requires:** `Authorization: Bearer YOUR_TOKEN`
+
+### Request body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `bvn` | string | ✓ or `nin` | Bank Verification Number |
+| `nin` | string | ✓ or `bvn` | National Identity Number |
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/virtual-account \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "bvn": "12345678901" }'
+```
+
+```javascript Node.js
+const response = await fetch(
+  'https://sabipay-backend-arvbv.ondigitalocean.app/api/pay/virtual-account',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ bvn: '12345678901' }),
+  }
+);
+
+const { data } = await response.json();
+// data.accountNumber — share this with your customers
+```
+
+</CodeGroup>
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "accountNumber": "1234567890",
+    "bankName": "Wema Bank",
+    "accountName": "SABIPAY / YOUR COMPANY",
+    "currency": "NGN"
+  }
+}
+```
+
+---
+
+## How credits are processed
+
+When a customer sends money to your virtual account number, the payment processor fires a `collection.payin.successful` webhook to SabiPay. The backend:
+
+1. Matches the account number to your merchant account
+2. Credits your wallet with the transferred amount
+3. Writes a history entry: `"Bank transfer received via virtual account (ref: ...)"`
+
+The credit typically appears within a few seconds of the transfer completing on the customer's end.
+
+See [Webhook Events](/webhooks/overview) for the full event payload.
